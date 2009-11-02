@@ -129,7 +129,7 @@ class Memcached_library
 		
 		if(is_null($expiration))
 		{
-			$expiration = $this->config['expiration'];
+			$expiration = $this->config['delete_expiration'];
 		}
 		
 		if(is_array($key))
@@ -145,6 +145,31 @@ class Memcached_library
 		}
 	}
 	
-}
+	public function replace($key = NULL, $value = NULL, $expiration = NULL)
+	{
+		if(is_null($expiration))
+		{
+			$expiration = $this->config['expiration'];
+		}
+		if(is_array($key))
+		{
+			foreach($key as $multi)
+			{
+				if(!isset($multi['expiration']) || $multi['expiration'] = '')
+				{
+					$multi['expiration'] = $this->config['expiration'];
+				}
+				$this->m->replace($multi['key'], $multi['value'], $multi['expiration']);
+			}
+		}
+		else
+		{
+			return $this->m->replace($key, $value, $expiration);
+		}
+	}
+	
+	
+	
+	
 /* End of file memcached_library.php */
 /* Location: ./application/libraries/memcached_library.php */
