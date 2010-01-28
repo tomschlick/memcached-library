@@ -2,21 +2,27 @@
 class Memcached_library
 {
 	
-	private var $config;
-	private var $m;
-	private var $ci;
-	protected var $errors = array();
+	private $config;
+	private $local_cache = array();
+	private $m;
+	private $ci;
+	protected $errors = array();
 	
 	
 	public function __construct()
 	{
 		$this->ci =& get_instance();
 		
-		$this->ci->load->config('memcached');
-		$this->config = $this->ci->config->item('memcached');
-		
-		$this->m = new Memcached();
-		$this->auto_connect();
+		$this->m = FALSE;
+		if(class_exists('Memcache'))
+		{
+			$this->ci->load->config('memcached');
+			$this->config = $this->ci->config->item('memcached');
+			
+			$this->m = new Memcache();
+			log_message('debug', "Memcached Library: Memcached Class Loaded");
+			$this->auto_connect();
+		}
 	}
 	
 	/*
@@ -77,12 +83,13 @@ class Memcached_library
 				{
 					$multi['expiration'] = $this->config['expiration'];
 				}
-				$this->m->add($multi['key'], $multi['value'], $multi['expiration']);
+				$this->m->add($this->key_name($multi['key']), $multi['value'], $multi['expiration']);
 			}
 		}
 		else
 		{
-			return $this->m->add($key, $value, $expiration);
+			$this->local_cache[][$this->key_name($key)] = $value;
+			return $this->m->add($this->key_name($key), $value, $expiration);
 		}
 	}
 	
@@ -95,20 +102,32 @@ class Memcached_library
 	*/
 	public function get($key = NULL)
 	{
-		if(is_null($key))
+		if($this->m)
 		{
-			$this->errors[] = 'The key value cannot be NULL';
-			return FALSE;
+			if(isset($this->local_cache[$this->key_name($key)]))
+			{
+				return $this->local_cache[$this->key_name($key)];
+			}
+			if(is_null($key))
+			{
+				$this->errors[] = 'The key value cannot be NULL';
+				return FALSE;
+			}
+			
+			if(is_array($key))
+			{
+				foreach($key as $n=>$k)
+				{
+					$key[$n] = $this->key_name($k);
+				}
+				return $this->m->getMulti($key);
+			}
+			else
+			{
+				return $this->m->get($this->key_name($key));
+			}
 		}
-		
-		if(is_array($key))
-		{
-			return $this->m->getMulti($key);
-		}
-		else
-		{
-			return $this->m->get($key);
-		}
+		return FALSE;		
 	}
 	
 	
@@ -136,15 +155,22 @@ class Memcached_library
 		{
 			foreach($key as $multi)
 			{
-				$this->m->delete($multi, $expiration);
+				$this->delete($multi, $expiration);
 			}
 		}
 		else
 		{
-			return $this->m->delete($key, $expiration);
+			unset($this->local_cache[$this->key_name($key)]);
+			return $this->m->delete($this->key_name($key), $expiration);
 		}
 	}
-	
+	/*
+	+-------------------------------------+
+		Name: replace
+		Purpose: replaces the value of a key that already exists
+		@param return : none
+	+-------------------------------------+
+	*/
 	public function replace($key = NULL, $value = NULL, $expiration = NULL)
 	{
 		if(is_null($expiration))
@@ -159,17 +185,29 @@ class Memcached_library
 				{
 					$multi['expiration'] = $this->config['expiration'];
 				}
-				$this->m->replace($multi['key'], $multi['value'], $multi['expiration']);
+				$this->replace($multi['key'], $multi['value'], $multi['expiration']);
 			}
 		}
 		else
 		{
-			return $this->m->replace($key, $value, $expiration);
+			$this->local_cache[$this->key_name($key)] = $value;
+			return $this->m->replace($this->key_name($key), $value, $expiration);
 		}
+	}
+	/*
+	+-------------------------------------+
+		Name: key_name
+		Purpose: standardizes the key names for memcache instances
+		@param return : md5 key name
+	+-------------------------------------+
+	*/
+	private function key_name($key)
+	{
+		return md5(strtolower($this->config['config']['prefix'].$key));
 	}
 	
 	
 	
-	
+}	
 /* End of file memcached_library.php */
 /* Location: ./application/libraries/memcached_library.php */
