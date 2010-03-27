@@ -17,7 +17,7 @@ $memcached['servers'] = array(
 // --------------------------------------------------------------------------
 // Configuration
 // --------------------------------------------------------------------------
-$memached['config'] = array(
+$memcached['config'] = array(
 
 	'prefix' 			=> '',			// Prefixes every key value (useful for multi environment setups)
 	'compression'		=> TRUE,		// Turns value compression on/off
