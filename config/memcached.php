@@ -11,6 +11,7 @@ $memcached['servers'] = array(
 					'host'			=> 'localhost',
 					'port'			=> '11211',
 					'weight'		=> '1',
+					'persistent'	=> FALSE,
 					),
 );
 
