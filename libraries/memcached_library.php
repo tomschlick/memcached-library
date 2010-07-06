@@ -73,7 +73,7 @@ class Memcached_library
 	{
 		if(is_null($expiration))
 		{
-			$expiration = $this->config['expiration'];
+			$expiration = $this->config['config']['expiration'];
 		}
 		if(is_array($key))
 		{
@@ -81,14 +81,14 @@ class Memcached_library
 			{
 				if(!isset($multi['expiration']) || $multi['expiration'] = '')
 				{
-					$multi['expiration'] = $this->config['expiration'];
+					$multi['expiration'] = $this->config['config']['expiration'];
 				}
 				$this->m->add($this->key_name($multi['key']), $multi['value'], $multi['expiration']);
 			}
 		}
 		else
 		{
-			$this->local_cache[][$this->key_name($key)] = $value;
+			$this->local_cache[$this->key_name($key)] = $value;
 			return $this->m->add($this->key_name($key), $value, $expiration);
 		}
 	}
@@ -148,7 +148,7 @@ class Memcached_library
 		
 		if(is_null($expiration))
 		{
-			$expiration = $this->config['delete_expiration'];
+			$expiration = $this->config['config']['delete_expiration'];
 		}
 		
 		if(is_array($key))
@@ -175,7 +175,7 @@ class Memcached_library
 	{
 		if(is_null($expiration))
 		{
-			$expiration = $this->config['expiration'];
+			$expiration = $this->config['config']['expiration'];
 		}
 		if(is_array($key))
 		{
@@ -183,7 +183,7 @@ class Memcached_library
 			{
 				if(!isset($multi['expiration']) || $multi['expiration'] = '')
 				{
-					$multi['expiration'] = $this->config['expiration'];
+					$multi['expiration'] = $this->config['config']['expiration'];
 				}
 				$this->replace($multi['key'], $multi['value'], $multi['expiration']);
 			}
