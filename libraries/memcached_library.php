@@ -59,7 +59,7 @@ class Memcached_library
 	public function add_server($server)
 	{
 		extract($server);
-		$this->m->addServer($host, $port, $persistent, $weight);
+		return $this->m->addServer($host, $port, $persistent, $weight);
 	}
 	
 	/*
