@@ -79,7 +79,7 @@ class Memcached_library
 		{
 			foreach($key as $multi)
 			{
-				if(!isset($multi['expiration']) || $multi['expiration'] = '')
+				if(!isset($multi['expiration']) || $multi['expiration'] == '')
 				{
 					$multi['expiration'] = $this->config['config']['expiration'];
 				}
