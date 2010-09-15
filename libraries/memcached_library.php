@@ -83,13 +83,13 @@ class Memcached_library
 				{
 					$multi['expiration'] = $this->config['config']['expiration'];
 				}
-				$this->m->add($this->key_name($multi['key']), $multi['value'], $multi['expiration']);
+				$this->m->add($this->key_name($multi['key']), $multi['value'], $this->config['config']['compression'], $multi['expiration']);
 			}
 		}
 		else
 		{
 			$this->local_cache[$this->key_name($key)] = $value;
-			return $this->m->add($this->key_name($key), $value, $expiration);
+			return $this->m->add($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
 		}
 	}
 	
@@ -185,13 +185,13 @@ class Memcached_library
 				{
 					$multi['expiration'] = $this->config['config']['expiration'];
 				}
-				$this->replace($multi['key'], $multi['value'], $multi['expiration']);
+				$this->replace($multi['key'], $multi['value'], $this->config['config']['compression'], $multi['expiration']);
 			}
 		}
 		else
 		{
 			$this->local_cache[$this->key_name($key)] = $value;
-			return $this->m->replace($this->key_name($key), $value, $expiration);
+			return $this->m->replace($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
 		}
 	}
 	/*
