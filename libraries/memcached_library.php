@@ -83,7 +83,7 @@ class Memcached_library
 				{
 					$multi['expiration'] = $this->config['config']['expiration'];
 				}
-				$this->m->add($this->key_name($multi['key']), $multi['value'], $this->config['config']['compression'], $multi['expiration']);
+				$this->m->add($this->key_name($multi['key']), $multi['value'], $multi['expiration']);
 			}
 		}
 		else
@@ -185,7 +185,7 @@ class Memcached_library
 				{
 					$multi['expiration'] = $this->config['config']['expiration'];
 				}
-				$this->replace($multi['key'], $multi['value'], $this->config['config']['compression'], $multi['expiration']);
+				$this->replace($multi['key'], $multi['value'], $multi['expiration']);
 			}
 		}
 		else
