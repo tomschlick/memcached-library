@@ -14,12 +14,12 @@ class Memcached_library
 		$this->ci =& get_instance();
 		
 		$this->m = FALSE;
-		if(class_exists('Memcache'))
+		if(class_exists('Memcached'))
 		{
 			$this->ci->load->config('memcached');
 			$this->config = $this->ci->config->item('memcached');
 			
-			$this->m = new Memcache();
+			$this->m = new Memcached();
 			log_message('debug', "Memcached Library: Memcached Class Loaded");
 			$this->auto_connect();
 		}
@@ -59,7 +59,7 @@ class Memcached_library
 	public function add_server($server)
 	{
 		extract($server);
-		return $this->m->addServer($host, $port, $persistent, $weight);
+		return $this->m->addServer($host, $port, $weight);
 	}
 	
 	/*
@@ -83,13 +83,13 @@ class Memcached_library
 				{
 					$multi['expiration'] = $this->config['config']['expiration'];
 				}
-				$this->m->add($this->key_name($multi['key']), $multi['value'], $multi['expiration']);
+				$this->add($this->key_name($multi['key']), $multi['value'], $multi['expiration']);
 			}
 		}
 		else
 		{
 			$this->local_cache[$this->key_name($key)] = $value;
-			return $this->m->add($this->key_name($key), $value, $expiration);
+			return $this->m->add($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
 		}
 	}
 	
@@ -191,7 +191,7 @@ class Memcached_library
 		else
 		{
 			$this->local_cache[$this->key_name($key)] = $value;
-			return $this->m->replace($this->key_name($key), $value, $expiration);
+			return $this->m->replace($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
 		}
 	}
 	/*
