@@ -196,6 +196,18 @@ class Memcached_library
 	}
 	/*
 	+-------------------------------------+
+		Name: flush
+		Purpose: flushes all items from cache
+		@param return : none
+	+-------------------------------------+
+	*/
+	public function flush()
+	{
+		return $this->m->flush();
+	}
+	
+	/*
+	+-------------------------------------+
 		Name: key_name
 		Purpose: standardizes the key names for memcache instances
 		@param return : md5 key name
