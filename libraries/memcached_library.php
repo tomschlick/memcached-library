@@ -171,6 +171,7 @@ class Memcached_library
 			return $this->m->delete($this->key_name($key), $expiration);
 		}
 	}
+	
 	/*
 	+-------------------------------------+
 		Name: replace
@@ -201,6 +202,7 @@ class Memcached_library
 			return $this->m->replace($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
 		}
 	}
+	
 	/*
 	+-------------------------------------+
 		Name: flush
@@ -211,6 +213,31 @@ class Memcached_library
 	public function flush()
 	{
 		return $this->m->flush();
+	}
+	
+	/*
+	+-------------------------------------+
+		Name: getversion
+		Purpose: Get Server Vesion Number
+		@param Returns a string of server version number or FALSE on failure. 
+	+-------------------------------------+
+	*/
+	public function getversion()
+	{
+		return $this->m->getVersion();
+	}
+	
+	/*
+	+-------------------------------------+
+		Name: getstats
+		Purpose: Get Server Stats
+		Possible: "reset, malloc, maps, cachedump, slabs, items, sizes"
+		@param returns an associative array with server's statistics. Array keys correspond to stats parameters and values to parameter's values.
+	+-------------------------------------+
+	*/
+	public function getstats($type="items")
+	{
+		return $this->m->getStats($type);
 	}
 	
 	/*

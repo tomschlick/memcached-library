@@ -36,4 +36,17 @@ class Example_memcached extends Controller
 		}
 		
 	}
+	
+	function stats()
+	{
+    $this->load->library('memcached_library');
+    
+    echo $this->memcached_library->getversion();
+    echo "<br/>";
+    
+    // We can use any of the following "reset, malloc, maps, cachedump, slabs, items, sizes"
+    $p = $this->memcached_library->getstats("sizes");
+    
+    var_dump($p);
+	}
 }
