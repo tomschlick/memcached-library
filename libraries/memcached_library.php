@@ -11,6 +11,7 @@ class Memcached_library
 	
 	public function __construct()
 	{
+	
 		$this->ci =& get_instance();
 		
 		// Lets try to load Memcache or Memcached Class
@@ -22,14 +23,20 @@ class Memcached_library
 			
 			// Which one should be loaded
 			if ($this->m == "Memcached") { $this->m = new Memcached(); }
-      else { $this->m = new Memcache(); }
+			else { $this->m = new Memcache(); }
       
 			log_message('debug', "Memcached Library: Memcached Class Loaded");
 			$this->auto_connect();
+			
+			// Set Automatic Compression Settings
+			if ($this->config['config']['auto_compress_tresh']) {
+				$this->setcompressthreshold($this->config['config']['auto_compress_tresh'], $this->config['config']['auto_compress_savings']);
+			}	
+	
 		}
 		else {
-      log_message('debug', "Memcached Library: Failed to load Memcached or Memcache Class");
-    }
+			log_message('debug', "Memcached Library: Failed to load Memcached or Memcache Class");
+		}
 	}
 	
 	/*
@@ -238,6 +245,18 @@ class Memcached_library
 	public function getstats($type="items")
 	{
 		return $this->m->getStats($type);
+	}
+	
+	/*
+	+-------------------------------------+
+		Name: setcompresstreshold
+		Purpose: Set When Automatic compression should kick-in
+		@param return TRUE/FALSE
+	+-------------------------------------+
+	*/
+	public function setcompressthreshold($tresh, $savings=0.2)
+	{
+		return $this->m->setCompressThreshold($tresh, $savings=0.2);
 	}
 	
 	/*
