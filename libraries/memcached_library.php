@@ -23,6 +23,15 @@ class Memcached_library
 			log_message('debug', "Memcached Library: Memcached Class Loaded");
 			$this->auto_connect();
 		}
+		else 	if(class_exists('Memcache'))
+		{
+			$this->ci->load->config('memcached');
+			$this->config = $this->ci->config->item('memcached');
+			
+			$this->m = new Memcache();
+			log_message('debug', "Memcached Library: Memcached Class Loaded");
+			$this->auto_connect();
+		}
 	}
 	
 	/*
