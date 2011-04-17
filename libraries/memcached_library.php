@@ -13,25 +13,23 @@ class Memcached_library
 	{
 		$this->ci =& get_instance();
 		
-		$this->m = FALSE;
-		if(class_exists('Memcached'))
-		{
+		// Lets try to load Memcache or Memcached Class
+		$this->m = class_exists('Memcache') ? "Memcache" : (class_exists('Memcached') ? "Memcached" : FALSE);
+		
+		if($this->m) {
 			$this->ci->load->config('memcached');
 			$this->config = $this->ci->config->item('memcached');
 			
-			$this->m = new Memcached();
+			// Which one should be loaded
+			if ($this->m == "Memcached") { $this->m = new Memcached(); }
+      else { $this->m = new Memcache(); }
+      
 			log_message('debug', "Memcached Library: Memcached Class Loaded");
 			$this->auto_connect();
 		}
-		else 	if(class_exists('Memcache'))
-		{
-			$this->ci->load->config('memcached');
-			$this->config = $this->ci->config->item('memcached');
-			
-			$this->m = new Memcache();
-			log_message('debug', "Memcached Library: Memcached Class Loaded");
-			$this->auto_connect();
-		}
+		else {
+      log_message('debug', "Memcached Library: Failed to load Memcached or Memcache Class");
+    }
 	}
 	
 	/*
