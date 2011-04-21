@@ -111,14 +111,20 @@ class Memcached_library
 		else
 		{
 			$this->local_cache[$this->key_name($key)] = $value;
-			if($this->client_type == 'Memcache')
+			switch($this->client_type)
 			{
-				return $this->m->add($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
+				case 'Memcache':
+					$add_status = $this->m->add($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
+					break;
+				case 'Memcached':
+					$add_status = $this->m->add($this->key_name($key), $value, $expiration);
+					break;
+				default:
+					$add_status = $this->m->add($this->key_name($key), $value, $expiration);
+					break;
 			}
-			else
-			{
-				return $this->m->add($this->key_name($key), $value, $expiration);
-			}
+			
+			return $add_status;
 		}
 	}
 	
@@ -221,14 +227,21 @@ class Memcached_library
 		else
 		{
 			$this->local_cache[$this->key_name($key)] = $value;
-			if($this->client_type == 'Memcache')
+			
+			switch($this->client_type)
 			{
-				return $this->m->replace($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
+				case 'Memcache':
+					$replace_status = $this->m->replace($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
+					break;
+				case 'Memcached':
+					$replace_status = $this->m->replace($this->key_name($key), $value, $expiration);
+					break;
+				default:
+					$replace_status = $this->m->replace($this->key_name($key), $value, $expiration);
+					break;
 			}
-			else
-			{
-				return $this->m->replace($this->key_name($key), $value, $expiration);
-			}
+			
+			return $replace_status;
 		}
 	}
 	
@@ -266,7 +279,19 @@ class Memcached_library
 	*/
 	public function getstats($type="items")
 	{
-		return $this->m->getStats($type);
+		switch($this->client_type)
+		{
+			case 'Memcache':
+				$stats = $this->m->getStats($type);
+				break;
+			case 'Memcached':
+				$stats = $this->m->getStats();
+				break;
+			default:
+				$stats = $this->m->getStats();
+				break;
+		}
+		return $stats;
 	}
 	
 	/*
@@ -278,14 +303,16 @@ class Memcached_library
 	*/
 	public function setcompressthreshold($tresh, $savings=0.2)
 	{
-		if($this->client_type == 'Memcache')
+		switch($this->client_type)
 		{
-			return $this->m->setCompressThreshold($tresh, $savings=0.2);
+			case 'Memcache':
+				$setcompressthreshold_status = $this->m->setCompressThreshold($tresh, $savings=0.2);
+				break;
+			default:
+				$setcompressthreshold_status = TRUE;
+				break;
 		}
-		else
-		{
-			return TRUE;
-		}
+		return $setcompressthreshold_status;
 	}
 	
 	/*
