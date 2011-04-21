@@ -5,37 +5,45 @@ class Memcached_library
 	private $config;
 	private $local_cache = array();
 	private $m;
+	private $client_type;
 	private $ci;
 	protected $errors = array();
 	
 	
 	public function __construct()
 	{
-	
 		$this->ci =& get_instance();
 		
 		// Lets try to load Memcache or Memcached Class
-		$this->m = class_exists('Memcache') ? "Memcache" : (class_exists('Memcached') ? "Memcached" : FALSE);
+		$this->client_type = class_exists('Memcache') ? "Memcache" : (class_exists('Memcached') ? "Memcached" : FALSE);
 		
-		if($this->m) {
+		if($this->client_type) 
+		{
 			$this->ci->load->config('memcached');
 			$this->config = $this->ci->config->item('memcached');
 			
 			// Which one should be loaded
-			if ($this->m == "Memcached") { $this->m = new Memcached(); }
-			else { $this->m = new Memcache(); }
-      
-			log_message('debug', "Memcached Library: Memcached Class Loaded");
-			$this->auto_connect();
+			switch($this->client_type)
+			{
+				case 'Memcached':
+					$this->m = new Memcached();
+					break;
+				case 'Memcache':
+					$this->m = new Memcache();
+					// Set Automatic Compression Settings
+					if ($this->config['config']['auto_compress_tresh'])
+					{
+						$this->setcompressthreshold($this->config['config']['auto_compress_tresh'], $this->config['config']['auto_compress_savings']);
+					}
+					break;
+			}
+			log_message('debug', "Memcached Library: $this->client_type Class Loaded");
 			
-			// Set Automatic Compression Settings
-			if ($this->config['config']['auto_compress_tresh']) {
-				$this->setcompressthreshold($this->config['config']['auto_compress_tresh'], $this->config['config']['auto_compress_savings']);
-			}	
-	
+			$this->auto_connect();	
 		}
-		else {
-			log_message('debug', "Memcached Library: Failed to load Memcached or Memcache Class");
+		else
+		{
+			log_message('error', "Memcached Library: Failed to load Memcached or Memcache Class");
 		}
 	}
 	
@@ -103,7 +111,14 @@ class Memcached_library
 		else
 		{
 			$this->local_cache[$this->key_name($key)] = $value;
-			return $this->m->add($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
+			if($this->client_type == 'Memcache')
+			{
+				return $this->m->add($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
+			}
+			else
+			{
+				return $this->m->add($this->key_name($key), $value, $expiration);
+			}
 		}
 	}
 	
@@ -206,7 +221,14 @@ class Memcached_library
 		else
 		{
 			$this->local_cache[$this->key_name($key)] = $value;
-			return $this->m->replace($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
+			if($this->client_type == 'Memcache')
+			{
+				return $this->m->replace($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
+			}
+			else
+			{
+				return $this->m->replace($this->key_name($key), $value, $expiration);
+			}
 		}
 	}
 	
@@ -256,7 +278,14 @@ class Memcached_library
 	*/
 	public function setcompressthreshold($tresh, $savings=0.2)
 	{
-		return $this->m->setCompressThreshold($tresh, $savings=0.2);
+		if($this->client_type == 'Memcache')
+		{
+			return $this->m->setCompressThreshold($tresh, $savings=0.2);
+		}
+		else
+		{
+			return TRUE;
+		}
 	}
 	
 	/*
