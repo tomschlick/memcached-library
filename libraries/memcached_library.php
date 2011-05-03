@@ -116,11 +116,53 @@ class Memcached_library
 				case 'Memcache':
 					$add_status = $this->m->add($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
 					break;
+					
+				default:
 				case 'Memcached':
 					$add_status = $this->m->add($this->key_name($key), $value, $expiration);
 					break;
+			}
+			
+			return $add_status;
+		}
+	}
+	
+	/*
+	+-------------------------------------+
+		Name: set
+		Purpose: similar to the add() method but uses set
+		@param return : TRUE or FALSE
+	+-------------------------------------+
+	*/
+	public function set($key = NULL, $value = NULL, $expiration = NULL)
+	{
+		if(is_null($expiration))
+		{
+			$expiration = $this->config['config']['expiration'];
+		}
+		if(is_array($key))
+		{
+			foreach($key as $multi)
+			{
+				if(!isset($multi['expiration']) || $multi['expiration'] == '')
+				{
+					$multi['expiration'] = $this->config['config']['expiration'];
+				}
+				$this->set($this->key_name($multi['key']), $multi['value'], $multi['expiration']);
+			}
+		}
+		else
+		{
+			$this->local_cache[$this->key_name($key)] = $value;
+			switch($this->client_type)
+			{
+				case 'Memcache':
+					$add_status = $this->m->set($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
+					break;
+					
 				default:
-					$add_status = $this->m->add($this->key_name($key), $value, $expiration);
+				case 'Memcached':
+					$add_status = $this->m->set($this->key_name($key), $value, $expiration);
 					break;
 			}
 			
@@ -233,10 +275,9 @@ class Memcached_library
 				case 'Memcache':
 					$replace_status = $this->m->replace($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
 					break;
-				case 'Memcached':
-					$replace_status = $this->m->replace($this->key_name($key), $value, $expiration);
-					break;
+				
 				default:
+				case 'Memcached':
 					$replace_status = $this->m->replace($this->key_name($key), $value, $expiration);
 					break;
 			}
@@ -284,10 +325,9 @@ class Memcached_library
 			case 'Memcache':
 				$stats = $this->m->getStats($type);
 				break;
-			case 'Memcached':
-				$stats = $this->m->getStats();
-				break;
+			
 			default:
+			case 'Memcached':
 				$stats = $this->m->getStats();
 				break;
 		}
@@ -308,6 +348,7 @@ class Memcached_library
 			case 'Memcache':
 				$setcompressthreshold_status = $this->m->setCompressThreshold($tresh, $savings=0.2);
 				break;
+				
 			default:
 				$setcompressthreshold_status = TRUE;
 				break;
