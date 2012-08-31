@@ -1,20 +1,18 @@
 #Memcached Library for CodeIgniter
 
-##DESCRIPTION
+##Description
 
 This library is to help interface between a CodeIgniter based project and 1 or more Memcached Servers ( http://www.danga.com/memcached/ ). It can also be used as a standalone php class with a few tweaks (the data in config/memcached.php needs to be loaded into the $config variable in the constructor).
 
-##MISC
+##Misc
 
 There has been an issue going on with some people installing (PECL) 'Memcache' and some 'Memcached'. This library can handle either one but **Memcached** is preferred!
 
-##INCLUDED
+##Included
 
 - Library
 - Config File
 - Controller Example
-
-###Get Started Using Memcached Today!
 
 ##How Do I Get Memcached?
 
