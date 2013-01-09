@@ -17,7 +17,7 @@ class Memcached_library
 		$this->config = $this->ci->config->item('memcached');
 
 		// Lets try to load Memcache or Memcached Class
-		$this->client_type = class_exists($this->config['config']['engine']);
+		$this->client_type = class_exists($this->config['config']['engine']) ? $this->config['config']['engine'] : FALSE;
 
 		if($this->client_type)
 		{
