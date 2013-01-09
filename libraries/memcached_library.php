@@ -12,14 +12,15 @@ class Memcached_library
 	{
 		$this->ci =& get_instance();
 
+		// Load the memcached library config
+		$this->ci->load->config('memcached');
+		$this->config = $this->ci->config->item('memcached');
+
 		// Lets try to load Memcache or Memcached Class
-		$this->client_type = class_exists('Memcache') ? "Memcache" : (class_exists('Memcached') ? "Memcached" : FALSE);
+		$this->client_type = $this->config['config']['engine'];
 
 		if($this->client_type)
 		{
-			$this->ci->load->config('memcached');
-			$this->config = $this->ci->config->item('memcached');
-
 			// Which one should be loaded
 			switch($this->client_type)
 			{
@@ -35,7 +36,7 @@ class Memcached_library
 					}
 					break;
 			}
-			log_message('debug', "Memcached Library: $this->client_type Class Loaded");
+			log_message('debug', "Memcached Library: " . $this->client_type . " Class Loaded");
 
 			$this->auto_connect();
 		}
@@ -356,9 +357,6 @@ class Memcached_library
 	{
 		return md5(strtolower($this->config['config']['prefix'].$key));
 	}
-
-
-
 }
 /* End of file memcached_library.php */
 /* Location: ./application/libraries/memcached_library.php */
