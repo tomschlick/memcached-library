@@ -1,27 +1,26 @@
 <?php if ( ! defined('BASEPATH')) exit('No direct script access allowed');
 class Memcached_library
 {
-	
+
 	private $config;
-	private $local_cache = array();
 	private $m;
 	private $client_type;
 	private $ci;
 	protected $errors = array();
-	
-	
+
 	public function __construct()
 	{
 		$this->ci =& get_instance();
-		
+
+		// Load the memcached library config
+		$this->ci->load->config('memcached');
+		$this->config = $this->ci->config->item('memcached');
+
 		// Lets try to load Memcache or Memcached Class
-		$this->client_type = class_exists('Memcache') ? "Memcache" : (class_exists('Memcached') ? "Memcached" : FALSE);
-		
-		if($this->client_type) 
+		$this->client_type = class_exists($this->config['config']['engine']) ? $this->config['config']['engine'] : FALSE;
+
+		if($this->client_type)
 		{
-			$this->ci->load->config('memcached');
-			$this->config = $this->ci->config->item('memcached');
-			
 			// Which one should be loaded
 			switch($this->client_type)
 			{
@@ -37,16 +36,16 @@ class Memcached_library
 					}
 					break;
 			}
-			log_message('debug', "Memcached Library: $this->client_type Class Loaded");
-			
-			$this->auto_connect();	
+			log_message('debug', "Memcached Library: " . $this->client_type . " Class Loaded");
+
+			$this->auto_connect();
 		}
 		else
 		{
 			log_message('error', "Memcached Library: Failed to load Memcached or Memcache Class");
 		}
 	}
-	
+
 	/*
 	+-------------------------------------+
 		Name: auto_connect
@@ -70,11 +69,11 @@ class Memcached_library
 			}
 		}
 	}
-	
+
 	/*
 	+-------------------------------------+
 		Name: add_server
-		Purpose: 
+		Purpose:
 		@param return : TRUE or FALSE
 	+-------------------------------------+
 	*/
@@ -83,7 +82,7 @@ class Memcached_library
 		extract($server);
 		return $this->m->addServer($host, $port, $weight);
 	}
-	
+
 	/*
 	+-------------------------------------+
 		Name: add
@@ -110,23 +109,22 @@ class Memcached_library
 		}
 		else
 		{
-			$this->local_cache[$this->key_name($key)] = $value;
 			switch($this->client_type)
 			{
 				case 'Memcache':
 					$add_status = $this->m->add($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
 					break;
-					
+
 				default:
 				case 'Memcached':
 					$add_status = $this->m->add($this->key_name($key), $value, $expiration);
 					break;
 			}
-			
+
 			return $add_status;
 		}
 	}
-	
+
 	/*
 	+-------------------------------------+
 		Name: set
@@ -153,23 +151,22 @@ class Memcached_library
 		}
 		else
 		{
-			$this->local_cache[$this->key_name($key)] = $value;
 			switch($this->client_type)
 			{
 				case 'Memcache':
 					$add_status = $this->m->set($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
 					break;
-					
+
 				default:
 				case 'Memcached':
 					$add_status = $this->m->set($this->key_name($key), $value, $expiration);
 					break;
 			}
-			
+
 			return $add_status;
 		}
 	}
-	
+
 	/*
 	+-------------------------------------+
 		Name: get
@@ -181,16 +178,12 @@ class Memcached_library
 	{
 		if($this->m)
 		{
-			if(isset($this->local_cache[$this->key_name($key)]))
-			{
-				return $this->local_cache[$this->key_name($key)];
-			}
 			if(is_null($key))
 			{
 				$this->errors[] = 'The key value cannot be NULL';
 				return FALSE;
 			}
-			
+
 			if(is_array($key))
 			{
 				foreach($key as $n=>$k)
@@ -204,10 +197,10 @@ class Memcached_library
 				return $this->m->get($this->key_name($key));
 			}
 		}
-		return FALSE;		
+		return FALSE;
 	}
-	
-	
+
+
 	/*
 	+-------------------------------------+
 		Name: delete
@@ -222,12 +215,12 @@ class Memcached_library
 			$this->errors[] = 'The key value cannot be NULL';
 			return FALSE;
 		}
-		
+
 		if(is_null($expiration))
 		{
 			$expiration = $this->config['config']['delete_expiration'];
 		}
-		
+
 		if(is_array($key))
 		{
 			foreach($key as $multi)
@@ -237,11 +230,10 @@ class Memcached_library
 		}
 		else
 		{
-			unset($this->local_cache[$this->key_name($key)]);
 			return $this->m->delete($this->key_name($key), $expiration);
 		}
 	}
-	
+
 	/*
 	+-------------------------------------+
 		Name: replace
@@ -268,24 +260,22 @@ class Memcached_library
 		}
 		else
 		{
-			$this->local_cache[$this->key_name($key)] = $value;
-			
 			switch($this->client_type)
 			{
 				case 'Memcache':
 					$replace_status = $this->m->replace($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
 					break;
-				
+
 				default:
 				case 'Memcached':
 					$replace_status = $this->m->replace($this->key_name($key), $value, $expiration);
 					break;
 			}
-			
+
 			return $replace_status;
 		}
 	}
-	
+
 	/*
 	+-------------------------------------+
 		Name: flush
@@ -297,19 +287,19 @@ class Memcached_library
 	{
 		return $this->m->flush();
 	}
-	
+
 	/*
 	+-------------------------------------+
 		Name: getversion
 		Purpose: Get Server Vesion Number
-		@param Returns a string of server version number or FALSE on failure. 
+		@param Returns a string of server version number or FALSE on failure.
 	+-------------------------------------+
 	*/
 	public function getversion()
 	{
 		return $this->m->getVersion();
 	}
-	
+
 	/*
 	+-------------------------------------+
 		Name: getstats
@@ -325,7 +315,7 @@ class Memcached_library
 			case 'Memcache':
 				$stats = $this->m->getStats($type);
 				break;
-			
+
 			default:
 			case 'Memcached':
 				$stats = $this->m->getStats();
@@ -333,7 +323,7 @@ class Memcached_library
 		}
 		return $stats;
 	}
-	
+
 	/*
 	+-------------------------------------+
 		Name: setcompresstreshold
@@ -348,14 +338,14 @@ class Memcached_library
 			case 'Memcache':
 				$setcompressthreshold_status = $this->m->setCompressThreshold($tresh, $savings=0.2);
 				break;
-				
+
 			default:
 				$setcompressthreshold_status = TRUE;
 				break;
 		}
 		return $setcompressthreshold_status;
 	}
-	
+
 	/*
 	+-------------------------------------+
 		Name: key_name
@@ -367,9 +357,6 @@ class Memcached_library
 	{
 		return md5(strtolower($this->config['config']['prefix'].$key));
 	}
-	
-	
-	
-}	
+}
 /* End of file memcached_library.php */
 /* Location: ./application/libraries/memcached_library.php */
