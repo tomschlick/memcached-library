@@ -275,6 +275,31 @@ class Memcached_library
 			return $replace_status;
 		}
 	}
+	
+	/*
+	+-------------------------------------+
+		Name: increment
+		Purpose: increments a value
+		@param return : none
+	+-------------------------------------+
+	*/
+	public function increment($key = null, $by = 1)
+	{
+		return $this->m->increment($this->key_name($key), $by);
+	}
+	
+	
+	/*
+	+-------------------------------------+
+		Name: decrement
+		Purpose: decrements a value
+		@param return : none
+	+-------------------------------------+
+	*/
+	public function decrement($key = null, $by = 1)
+	{
+		return $this->m->decrement($this->key_name($key), $by);
+	}
 
 	/*
 	+-------------------------------------+
