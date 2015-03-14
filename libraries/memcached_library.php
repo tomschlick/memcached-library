@@ -397,7 +397,7 @@ class Memcached_library
 			if($server['pid'] == -1)
 				return false;
 			else
-				return false;
+				return true;
 
 		}
 		
