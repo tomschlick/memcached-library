@@ -392,16 +392,14 @@ class Memcached_library
 
 	public function isConnected()
 	{
-		$stats = $this->getstats();
-		foreach($stats as $key => $server) {
+		foreach($this->getstats() as $key => $server) 
+		{
 			if($server['pid'] == -1)
+			{
 				return false;
-			else
-				return true;
-
+			}
+			return true;
 		}
 		
 	}
 }
-/* End of file memcached_library.php */
-/* Location: ./application/libraries/memcached_library.php */
