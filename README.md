@@ -14,11 +14,6 @@ There has been an issue going on with some people installing (PECL) 'Memcache' a
 - Config File
 - Controller Example
 
-##How Do I Get Memcached?
-
-You could give http://mrphp.com.au/code/install-memcache-cpanel-running-centos a shot
-should work for you regardless of the 'Centos' in the title.
-
 ## License
 
 The MIT License
