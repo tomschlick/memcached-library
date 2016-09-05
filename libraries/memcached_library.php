@@ -90,30 +90,36 @@ class Memcached_library
 
     public function add($key = null, $value = null, $expiration = null)
     {
-        if (is_null($expiration)) {
-            $expiration = $this->config['config']['expiration'];
-        }
-        if (is_array($key)) {
-            foreach ($key as $multi) {
-                if (!isset($multi['expiration']) || $multi['expiration'] == '') {
-                    $multi['expiration'] = $this->config['config']['expiration'];
-                }
-                $this->add($this->key_name($multi['key']), $multi['value'], $multi['expiration']);
-            }
-        } else {
-            switch ($this->client_type) {
-                case 'Memcache':
-                    $add_status = $this->m->add($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
-                    break;
-
-                default:
-                case 'Memcached':
-                    $add_status = $this->m->add($this->key_name($key), $value, $expiration);
-                    break;
-            }
-
-            return $add_status;
-        }
+    	if ($this->m) {
+	        if (is_null($expiration)) {
+	            $expiration = $this->config['config']['expiration'];
+	        }
+	        if (is_array($key)) {
+	            foreach ($key as $multi) {
+	                if (!isset($multi['expiration']) || $multi['expiration'] == '') {
+	                    $multi['expiration'] = $this->config['config']['expiration'];
+	                }
+	                $this->add($this->key_name($multi['key']), $multi['value'], $multi['expiration']);
+	            }
+	        } else {
+	            switch ($this->client_type) {
+	                case 'Memcache':
+	                    $add_status = $this->m->add($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
+	                    break;
+	
+	                default:
+	                case 'Memcached':
+	                    $add_status = $this->m->add($this->key_name($key), $value, $expiration);
+	                    break;
+	            }
+	
+	            return $add_status;
+	        }
+    	}
+    	else 
+    	{
+    		return false;
+    	}
     }
 
     /*
@@ -126,30 +132,36 @@ class Memcached_library
 
     public function set($key = null, $value = null, $expiration = null)
     {
-        if (is_null($expiration)) {
-            $expiration = $this->config['config']['expiration'];
-        }
-        if (is_array($key)) {
-            foreach ($key as $multi) {
-                if (!isset($multi['expiration']) || $multi['expiration'] == '') {
-                    $multi['expiration'] = $this->config['config']['expiration'];
-                }
-                $this->set($this->key_name($multi['key']), $multi['value'], $multi['expiration']);
-            }
-        } else {
-            switch ($this->client_type) {
-                case 'Memcache':
-                    $add_status = $this->m->set($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
-                    break;
-
-                default:
-                case 'Memcached':
-                    $add_status = $this->m->set($this->key_name($key), $value, $expiration);
-                    break;
-            }
-
-            return $add_status;
-        }
+    	if ($this->m) {
+	        if (is_null($expiration)) {
+	            $expiration = $this->config['config']['expiration'];
+	        }
+	        if (is_array($key)) {
+	            foreach ($key as $multi) {
+	                if (!isset($multi['expiration']) || $multi['expiration'] == '') {
+	                    $multi['expiration'] = $this->config['config']['expiration'];
+	                }
+	                $this->set($this->key_name($multi['key']), $multi['value'], $multi['expiration']);
+	            }
+	        } else {
+	            switch ($this->client_type) {
+	                case 'Memcache':
+	                    $add_status = $this->m->set($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
+	                    break;
+	
+	                default:
+	                case 'Memcached':
+	                    $add_status = $this->m->set($this->key_name($key), $value, $expiration);
+	                    break;
+	            }
+	
+	            return $add_status;
+	        }
+    	}
+    	else 
+    	{
+    		return false;
+    	}
     }
 
     /*
@@ -193,23 +205,28 @@ class Memcached_library
 
     public function delete($key, $expiration = null)
     {
-        if (is_null($key)) {
-            $this->errors[] = 'The key value cannot be NULL';
-
-            return false;
-        }
-
-        if (is_null($expiration)) {
-            $expiration = $this->config['config']['delete_expiration'];
-        }
-
-        if (is_array($key)) {
-            foreach ($key as $multi) {
-                $this->delete($multi, $expiration);
-            }
-        } else {
-            return $this->m->delete($this->key_name($key), $expiration);
-        }
+    	if ($this->m) {
+	        if (is_null($key)) {
+	            $this->errors[] = 'The key value cannot be NULL';
+	
+	            return false;
+	        }
+	
+	        if (is_null($expiration)) {
+	            $expiration = $this->config['config']['delete_expiration'];
+	        }
+	
+	        if (is_array($key)) {
+	            foreach ($key as $multi) {
+	                $this->delete($multi, $expiration);
+	            }
+	        } else {
+	            return $this->m->delete($this->key_name($key), $expiration);
+	        }
+    	}
+    	else {
+    		return false;
+    	}
     }
 
     /*
@@ -222,30 +239,35 @@ class Memcached_library
 
     public function replace($key = null, $value = null, $expiration = null)
     {
-        if (is_null($expiration)) {
-            $expiration = $this->config['config']['expiration'];
-        }
-        if (is_array($key)) {
-            foreach ($key as $multi) {
-                if (!isset($multi['expiration']) || $multi['expiration'] == '') {
-                    $multi['expiration'] = $this->config['config']['expiration'];
-                }
-                $this->replace($multi['key'], $multi['value'], $multi['expiration']);
-            }
-        } else {
-            switch ($this->client_type) {
-                case 'Memcache':
-                    $replace_status = $this->m->replace($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
-                    break;
-
-                default:
-                case 'Memcached':
-                    $replace_status = $this->m->replace($this->key_name($key), $value, $expiration);
-                    break;
-            }
-
-            return $replace_status;
-        }
+    	if ($this->m) {
+	        if (is_null($expiration)) {
+	            $expiration = $this->config['config']['expiration'];
+	        }
+	        if (is_array($key)) {
+	            foreach ($key as $multi) {
+	                if (!isset($multi['expiration']) || $multi['expiration'] == '') {
+	                    $multi['expiration'] = $this->config['config']['expiration'];
+	                }
+	                $this->replace($multi['key'], $multi['value'], $multi['expiration']);
+	            }
+	        } else {
+	            switch ($this->client_type) {
+	                case 'Memcache':
+	                    $replace_status = $this->m->replace($this->key_name($key), $value, $this->config['config']['compression'], $expiration);
+	                    break;
+	
+	                default:
+	                case 'Memcached':
+	                    $replace_status = $this->m->replace($this->key_name($key), $value, $expiration);
+	                    break;
+	            }
+	
+	            return $replace_status;
+	        }
+    	}
+    	else {
+    		return false;
+    	}
     }
 
     /*
@@ -258,7 +280,12 @@ class Memcached_library
 
     public function increment($key = null, $by = 1)
     {
-        return $this->m->increment($this->key_name($key), $by);
+    	if ($this->m) {
+        	return $this->m->increment($this->key_name($key), $by);
+    	}
+    	else {
+    		return false;
+    	}
     }
 
     /*
@@ -271,7 +298,12 @@ class Memcached_library
 
     public function decrement($key = null, $by = 1)
     {
-        return $this->m->decrement($this->key_name($key), $by);
+    	if ($this->m) {
+        	return $this->m->decrement($this->key_name($key), $by);
+    	}
+    	else {
+    		return false;
+    	}
     }
 
     /*
@@ -284,7 +316,12 @@ class Memcached_library
 
     public function flush()
     {
-        return $this->m->flush();
+    	if ($this->m) {
+        	return $this->m->flush();
+    	}
+    	else {
+    		return false;
+    	}
     }
 
     /*
@@ -297,7 +334,12 @@ class Memcached_library
 
     public function getversion()
     {
-        return $this->m->getVersion();
+    	if ($this->m) {
+        	return $this->m->getVersion();
+    	}
+    	else {
+    		return false;
+    	}
     }
 
     /*
@@ -311,18 +353,23 @@ class Memcached_library
 
     public function getstats($type = 'items')
     {
-        switch ($this->client_type) {
-            case 'Memcache':
-                $stats = $this->m->getStats($type);
-                break;
-
-            default:
-            case 'Memcached':
-                $stats = $this->m->getStats();
-                break;
-        }
-
-        return $stats;
+    	if ($this->m) {
+	        switch ($this->client_type) {
+	            case 'Memcache':
+	                $stats = $this->m->getStats($type);
+	                break;
+	
+	            default:
+	            case 'Memcached':
+	                $stats = $this->m->getStats();
+	                break;
+	        }
+	
+	        return $stats;
+    	}
+    	else {
+    		return false;
+    	}
     }
 
     /*
@@ -335,17 +382,22 @@ class Memcached_library
 
     public function setcompressthreshold($tresh, $savings = 0.2)
     {
-        switch ($this->client_type) {
-            case 'Memcache':
-                $setcompressthreshold_status = $this->m->setCompressThreshold($tresh, $savings = 0.2);
-                break;
-
-            default:
-                $setcompressthreshold_status = true;
-                break;
-        }
-
-        return $setcompressthreshold_status;
+    	if ($this->m) {
+	        switch ($this->client_type) {
+	            case 'Memcache':
+	                $setcompressthreshold_status = $this->m->setCompressThreshold($tresh, $savings = 0.2);
+	                break;
+	
+	            default:
+	                $setcompressthreshold_status = true;
+	                break;
+	        }
+	
+	        return $setcompressthreshold_status;
+    	}
+    	else {
+    		return false;
+    	}
     }
 
     /*
@@ -370,12 +422,17 @@ class Memcached_library
 
     public function isConnected()
     {
-        foreach ($this->getstats() as $key => $server) {
-            if ($server['pid'] == -1) {
-                return false;
-            }
-
-            return true;
-        }
+    	if ($this->m) {
+	        foreach ($this->getstats() as $key => $server) {
+	            if ($server['pid'] == -1) {
+	                return false;
+	            }
+	
+	            return true;
+	        }
+    	}
+    	else {
+    		return false;
+    	}
     }
 }
