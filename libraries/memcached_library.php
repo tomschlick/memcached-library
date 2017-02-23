@@ -98,7 +98,7 @@ class Memcached_library
                 if (!isset($multi['expiration']) || $multi['expiration'] == '') {
                     $multi['expiration'] = $this->config['config']['expiration'];
                 }
-                $this->add($this->key_name($multi['key']), $multi['value'], $multi['expiration']);
+                $this->add($multi['key'], $multi['value'], $multi['expiration']);
             }
         } else {
             switch ($this->client_type) {
@@ -134,7 +134,7 @@ class Memcached_library
                 if (!isset($multi['expiration']) || $multi['expiration'] == '') {
                     $multi['expiration'] = $this->config['config']['expiration'];
                 }
-                $this->set($this->key_name($multi['key']), $multi['value'], $multi['expiration']);
+                $this->set($multi['key'], $multi['value'], $multi['expiration']);
             }
         } else {
             switch ($this->client_type) {
